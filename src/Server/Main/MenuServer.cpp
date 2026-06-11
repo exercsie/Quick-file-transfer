@@ -7,7 +7,7 @@
 #include <iostream>
 #include <unistd.h>
 
-void menuServer(const int& PORT) {
+void menuServer(const int& PORT, std::string& quickPath) {
     Server s(PORT);
     rFile rf;
     sFile sf;
@@ -22,18 +22,24 @@ void menuServer(const int& PORT) {
 
     char buffer[BUFFERSIZE];
     int bytesSend{}, bytesRec{};
+    bool isQuickPath = false;
+    std::size_t choice;
     while(true) {
-        std::size_t choice;
-        std::cout << "0 - Exit\n";
-        std::cout << "1 - Send a file\n";
-        std::cout << "2 - Receive a file\n";
-        std::cin >> choice;
-        if(choice < 0 || choice > 2) {
-            std::cerr << "Invalid choice!\n";
-            continue;
-        }
+        if(quickPath.length() > 1) {
+            choice = TYPE_SEND;
+            isQuickPath = true;
+        } else {
+            std::cout << "0 - Exit\n";
+            std::cout << "1 - Send a file\n";
+            std::cout << "2 - Receive a file\n";
+            std::cin >> choice;
+            if(choice < 0 || choice > 2) {
+                std::cerr << "Invalid choice!\n";
+                continue;
+            }
 
-        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+            std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+        }
 
         switch(choice) {
             int type;
@@ -49,6 +55,15 @@ void menuServer(const int& PORT) {
             case TYPE_SEND: {
                 type = TYPE_SEND;
                 bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
+                
+                if(isQuickPath) {
+                    bytesSend = send(s.getClientFileDescriptor(), quickPath.c_str(), quickPath.length(), 0);
+                    sf.sendFile(s.getClientFileDescriptor(), quickPath);
+                    isQuickPath = false;
+                    quickPath.clear();
+                    continue;
+                }
+
                 std::string path;
                 std::cout << "Enter path: ";
                 std::getline(std::cin, path);

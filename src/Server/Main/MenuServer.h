@@ -1,3 +1,5 @@
 #pragma once
 
-void menuServer(const int& PORT);
+#include <string>
+
+void menuServer(const int& PORT, std::string& quickPath);
