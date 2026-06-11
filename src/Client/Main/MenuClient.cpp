@@ -31,6 +31,16 @@ void menuClient(std::string& IP, const int& PORT) {
                 exit(0);
                 break;
             }
+
+            case TYPE_SEND: {
+
+                break;
+            }
+
+            case TYPE_RECEIVE: {
+
+                break;
+            }
         }
     }
 }

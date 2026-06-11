@@ -37,12 +37,12 @@ void menuServer(const int& PORT) {
                 break;
             }
 
-            case 1: {
+            case TYPE_SEND: {
 
                 break;
             }
 
-            case 2: {
+            case TYPE_RECEIVE: {
                 
                 break;
             }
