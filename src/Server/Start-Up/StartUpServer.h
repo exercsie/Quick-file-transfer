@@ -7,11 +7,11 @@ public:
     ~Server();
     void initialiseServerConnection();
     void createServerFileDescriptor();
-    int getServerFileDescriptorSocket() const;
+    int getServerFileDescriptor() const { return serverFileDescriptor; }
+    int getClientFileDescriptor() const { return clientFileDescriptor; }
     void bindSocket();
     void listenOnServerFileDescriptor();
     void acceptConnection();
-    int getClientFileDescriptor();
 private:
     int port;
     int serverFileDescriptor;

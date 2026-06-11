@@ -1,7 +1,9 @@
 #include "MenuClient.h"
-#include "../StartUpClient.h"
+#include "../Start-Up/StartUpClient.h"
+#include "../../Shared/Data/Data.h"
 #include <iostream>
 #include <string>
+#include <unistd.h>
 
 void menuClient(std::string& IP, const int& PORT) {
     Client c(IP, PORT);
@@ -14,7 +16,21 @@ void menuClient(std::string& IP, const int& PORT) {
     std::cout << " \\__\\_\\__,_ |_|\\___|_|\\_\\_|   |_|_|\\___||_||_|  \\__,_|_| |_|___ /_| \\___|_|   \n";
     std::cout << std::endl;
 
+    std::cout << "Awaiting Server's input..\n";
+
+    char buffer[BUFFERSIZE];
+    int bytesRec{};
+    int bytesSend{};
     while(true) {
-        std::cin;
+        int type;
+        bytesRec = recv(c.getClientSocket(), (char*)&type, sizeof(type), 0);
+        switch(bytesRec) {
+            case TYPE_EXIT: {
+                std::cerr << "Server closed by host!\n";
+                close(c.getClientSocket());
+                exit(0);
+                break;
+            }
+        }
     }
 }

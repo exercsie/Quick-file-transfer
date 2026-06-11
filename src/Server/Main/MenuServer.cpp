@@ -1,6 +1,8 @@
 #include "MenuServer.h"
-#include "../StartUpServer.h"
+#include "../Start-Up/StartUpServer.h"
+#include "../../Shared/Data/Data.h"
 #include <iostream>
+#include <unistd.h>
 
 void menuServer(const int& PORT) {
     Server s(PORT);
@@ -13,6 +15,7 @@ void menuServer(const int& PORT) {
     std::cout << " \\__\\_\\__,_ |_|\\___|_|\\_\\_|   |_|_|\\___||_||_|  \\__,_|_| |_|___ /_| \\___|_|   \n";
     std::cout << std::endl;
 
+    int bytesSend{};
     while(true) {
         std::size_t choice;
         std::cout << "0 - Exit\n";
@@ -25,7 +28,11 @@ void menuServer(const int& PORT) {
         }  
 
         switch(choice) {
-            case 0: {
+            case TYPE_EXIT: {
+                int type = TYPE_EXIT;
+                bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
+                close(s.getClientFileDescriptor());
+                close(s.getServerFileDescriptor());
                 exit(0);
                 break;
             }

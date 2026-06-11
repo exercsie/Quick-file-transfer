@@ -32,10 +32,6 @@ void Server::createServerFileDescriptor() {
     std::cout << "Socket created!\n";
 }
 
-int Server::getServerFileDescriptorSocket() const {
-    return serverFileDescriptor;
-}
-
 void Server::bindSocket() {
     std::memset(&serverAddress, 0, sizeof(serverAddress));
     serverAddress.sin_family = AF_INET;
@@ -71,8 +67,4 @@ void Server::acceptConnection() {
     }
 
     std::cout << "Connection established on PORT: " << port << std::endl;;
-}
-
-int Server::getClientFileDescriptor() {
-    return clientFileDescriptor;
 }
