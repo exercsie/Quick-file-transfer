@@ -42,14 +42,19 @@ void menuClient(std::string& IP, const int& PORT) {
                 bytesRec = recv(c.getClientSocket(), buffer, BUFFERSIZE, 0);
                 std::string path(buffer, bytesRec);
 
-                std::cout << "path: " << path << '\n';
-
                 rf.receiveFile(c.getClientSocket(), path);
                 break;
             }
 
             case TYPE_RECEIVE: {
+                std::string path;
+                std::cout << "Enter path: ";
+                std::getline(std::cin, path);
 
+                // send path
+                bytesSend = send(c.getClientSocket(), path.c_str(), path.length(), 0);
+
+                sf.sendFile(c.getClientSocket(), path);
                 break;
             }
         }

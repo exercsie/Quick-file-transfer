@@ -3,7 +3,7 @@
 
 int main(int argc, char* argv[]) {
     if(argc < 3) {
-        throw std::runtime_error("Please include IP and PORT \"./Server [IP] [PORT]\"" );
+        throw std::runtime_error("Please include IP and PORT \"./Client [IP] [PORT]\"" );
     }
 
     std::string IP = argv[1];

@@ -20,7 +20,8 @@ void menuServer(const int& PORT) {
     std::cout << " \\__\\_\\__,_ |_|\\___|_|\\_\\_|   |_|_|\\___||_||_|  \\__,_|_| |_|___ /_| \\___|_|   \n";
     std::cout << std::endl;
 
-    int bytesSend{};
+    char buffer[BUFFERSIZE];
+    int bytesSend{}, bytesRec{};
     while(true) {
         std::size_t choice;
         std::cout << "0 - Exit\n";
@@ -30,7 +31,8 @@ void menuServer(const int& PORT) {
         if(choice < 0 || choice > 2) {
             std::cerr << "Invalid choice!\n";
             continue;
-        }  
+        }
+
         std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
 
         switch(choice) {
@@ -59,7 +61,14 @@ void menuServer(const int& PORT) {
             }
 
             case TYPE_RECEIVE: {
-                
+                type = TYPE_RECEIVE;
+                bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
+
+                // receive path
+                bytesRec = recv(s.getClientFileDescriptor(), buffer, BUFFERSIZE, 0);
+                std::string path(buffer, bytesRec);
+
+                rf.receiveFile(s.getClientFileDescriptor(), path);
                 break;
             }
         }
