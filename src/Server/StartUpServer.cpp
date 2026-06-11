@@ -25,7 +25,7 @@ Server::~Server() {
 void Server::createServerFileDescriptor() {
     serverFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if(serverFileDescriptor == -1) {
-        std::cerr << "Socket failed!\n";
+        std::cerr << "Socket creation failed!\n";
         exit(1);
     }
 
@@ -70,7 +70,7 @@ void Server::acceptConnection() {
         return;
     }
 
-    std::cout << "Connection established!\n";
+    std::cout << "Connection established on PORT: " << port << std::endl;;
 }
 
 int Server::getClientFileDescriptor() {

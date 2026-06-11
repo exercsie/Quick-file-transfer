@@ -1,3 +1,4 @@
 #pragma once
+#include <string>
 
-void menuClient();
+void menuClient(std::string& IP, const int& PORT);
