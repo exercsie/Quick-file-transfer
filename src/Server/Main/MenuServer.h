@@ -1,3 +1,3 @@
 #pragma once
 
-void menuServer();
+void menuServer(const int& PORT);

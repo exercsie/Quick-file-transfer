@@ -2,11 +2,30 @@
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <iostream>
+#include <unistd.h>
+#include <cstring>
+
+void Server::initialiseServerConnection() {
+    createServerFileDescriptor();
+    bindSocket();
+    listenOnServerFileDescriptor();
+    acceptConnection();
+}
+
+Server::~Server() {
+    if(serverFileDescriptor != -1) {
+        close(serverFileDescriptor);
+    }
+
+    if(clientFileDescriptor != -1) {
+        close(clientFileDescriptor);
+    }
+}
 
 void Server::createServerFileDescriptor() {
     serverFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if(serverFileDescriptor == -1) {
-        std::cout << "Socket failed!\n";
+        std::cerr << "Socket failed!\n";
         exit(1);
     }
 
@@ -17,26 +36,43 @@ int Server::getServerFileDescriptorSocket() const {
     return serverFileDescriptor;
 }
 
-void Server::bindSocket(const int& PORT) {
-    sockaddr_in serverAddress{};
+void Server::bindSocket() {
+    std::memset(&serverAddress, 0, sizeof(serverAddress));
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_addr.s_addr = INADDR_ANY;
-    serverAddress.sin_port = htons(PORT);
+    serverAddress.sin_port = htons(port);
 
-    int bindSock = bind(serverFileDescriptor, (sockaddr*)(&serverAddress), sizeof(serverAddress));
+    int bindSock = bind(serverFileDescriptor, (sockaddr*)&serverAddress, sizeof(serverAddress));
     if(bindSock == -1) {
-        std::cout << "Bind failed!\n";
+        std::cerr << "Bind failed!\n";
+        exit(1);
     }
 
     std::cout << "Socket binded!\n";
 }
 
-void Server::listenOnServerFileDescriptor(const int& PORT) {
+void Server::listenOnServerFileDescriptor() {
     int listening = listen(serverFileDescriptor, 1);
     if(listening == -1) {
-        std::cout << "Listening failed!\n";
+        std::cerr << "Listening failed!\n";
+        exit(1);
     }
 
-    std::cout << "Listening on PORT: " << PORT << "...";
+    std::cout << "Listening on PORT: " << port << "...\n";
 }
 
+void Server::acceptConnection() {
+    sockaddr_in clientAddress{};
+    socklen_t clientLength = sizeof(clientAddress);
+    clientFileDescriptor = accept(serverFileDescriptor, (sockaddr*)&clientAddress, &clientLength);
+    if(clientFileDescriptor == -1) {
+        std::cerr << "Connection failed!\n";
+        return;
+    }
+
+    std::cout << "Connection established!\n";
+}
+
+int Server::getClientFileDescriptor() {
+    return clientFileDescriptor;
+}
