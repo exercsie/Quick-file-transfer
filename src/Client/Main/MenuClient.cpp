@@ -1,12 +1,17 @@
 #include "MenuClient.h"
 #include "../Start-Up/StartUpClient.h"
 #include "../../Shared/Data/Data.h"
+#include "../../Shared/File-send-and-receive/ReceiveFile.h"
+#include "../../Shared/File-send-and-receive/SendFile.h"
+
 #include <iostream>
 #include <string>
 #include <unistd.h>
 
 void menuClient(std::string& IP, const int& PORT) {
     Client c(IP, PORT);
+    rFile rf;
+    sFile sf;
     c.initialiseClientConnection();
 
     std::cout << "  ___        _      _    _____   _     _____                     __           \n";
@@ -24,7 +29,7 @@ void menuClient(std::string& IP, const int& PORT) {
     while(true) {
         int type;
         bytesRec = recv(c.getClientSocket(), (char*)&type, sizeof(type), 0);
-        switch(bytesRec) {
+        switch(type) {
             case TYPE_EXIT: {
                 std::cerr << "Server closed by host!\n";
                 close(c.getClientSocket());
@@ -33,7 +38,13 @@ void menuClient(std::string& IP, const int& PORT) {
             }
 
             case TYPE_SEND: {
+                // receive path
+                bytesRec = recv(c.getClientSocket(), buffer, BUFFERSIZE, 0);
+                std::string path(buffer, bytesRec);
 
+                std::cout << "path: " << path << '\n';
+
+                rf.receiveFile(c.getClientSocket(), path);
                 break;
             }
 
