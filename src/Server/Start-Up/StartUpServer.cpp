@@ -47,7 +47,7 @@ void Server::bindSocket() {
     std::cout << "Socket binded!\n";
 }
 
-void Server::listenOnServerFileDescriptor() {
+void Server::listenOnServerFileDescriptor() const {
     int listening = listen(serverFileDescriptor, 1);
     if(listening == -1) {
         std::cerr << "Listening failed!\n";

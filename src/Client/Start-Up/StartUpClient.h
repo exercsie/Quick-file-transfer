@@ -11,7 +11,6 @@ public:
     int getClientSocket() const { return sock; }
     void connectToServer();
 private:
-    void defineIP();
     int port;
     int sock;
     std::string ip;

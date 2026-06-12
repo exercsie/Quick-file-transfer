@@ -26,20 +26,16 @@ void Client::createClientSocket() {
     std::cout << "Socket created!\n";
 }
 
-/*void Client::defineIP() {
-    int ipINT = inet_pton(AF_INET, ip.c_str(), &serverAddress.sin_addr);
-    if(ipINT < 1) {
-        std::cerr << "Invalid IP!\n";
-        exit(1);
-    }
-}*/
-
 void Client::connectToServer() {
     std::memset(&serverAddress, 0, sizeof(serverAddress));
     serverAddress.sin_family = AF_INET;
     serverAddress.sin_port = htons(port);
 
     int ipInt = inet_pton(AF_INET, ip.c_str(), &serverAddress.sin_addr);
+    if(ipInt < 1) {
+        std::cerr << "Invalid IP!\n";
+        exit(1);
+    }
 
     int connectionEstablished = connect(sock, (sockaddr*)&serverAddress, sizeof(serverAddress));
     if(connectionEstablished == -1) {

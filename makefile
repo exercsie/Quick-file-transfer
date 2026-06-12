@@ -13,11 +13,11 @@ src/Shared/File-send-and-receive/SendFile.cpp \
 src/Shared/File-send-and-receive/ReceiveFile.cpp
 
 client Client:
-	g++ $(CLIENT_SRC) -o Client -O3
+	g++ $(CLIENT_SRC) -o Client
 
 
 server Server:
-	g++ $(SERVER_SRC) -o Server -O3
+	g++ $(SERVER_SRC) -o Server
 
 clean:
 	$(RM) victim server

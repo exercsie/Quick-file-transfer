@@ -3,6 +3,7 @@
 #include <iostream>
 #include <sys/socket.h>
 #include <string>
+#include <format>
 
 void rFile::receiveFile(int socket, const std::string& path) {
     char buffer[BUFFERSIZE];
@@ -37,7 +38,8 @@ void rFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, cons
     int bytesRec;
     std::size_t dataRec{};
 
-    std::cout << "Receiving \"" << fileName << "\" of size: " << fileSize << "...\n";
+    std::string receivingFile { std::format("Receiving {} of size {} bytes...", fileName, fileSize) };
+    std::cout << receivingFile << std::endl;
     while(dataRec < fileSize) {
         std::size_t readBytes = (fileSize - dataRec > BUFFERSIZE) ? BUFFERSIZE : fileSize - dataRec;
 
@@ -47,6 +49,7 @@ void rFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, cons
         dataRec += bytesRec;
     }
 
-    std::cout << "File received!\n";
+    std::string receivedFile { std::format("Received {} of size {} bytes!", fileName, fileSize) };
+    std::cout << receivedFile << std::endl;
     fclose(file);
 }

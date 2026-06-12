@@ -10,7 +10,7 @@ public:
     int getServerFileDescriptor() const { return serverFileDescriptor; }
     int getClientFileDescriptor() const { return clientFileDescriptor; }
     void bindSocket();
-    void listenOnServerFileDescriptor();
+    void listenOnServerFileDescriptor() const;
     void acceptConnection();
 private:
     int port;

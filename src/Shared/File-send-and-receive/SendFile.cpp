@@ -3,6 +3,7 @@
 #include <iostream>
 #include <cstdint>
 #include <sys/socket.h>
+#include <format>
 
 void sFile::sendFile(int socket, const std::string& path) {
     int bytesSend{};
@@ -48,13 +49,15 @@ void sFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, cons
     std::size_t dataSent{};
     
     // align file contents in chunks
-    std::cout << "Sending \"" << fileName << "\" of size " << fileSize << "...\n";
+    std::string sendingFile { std::format("Sending {} of size {} bytes...", fileName, fileSize) };
+    std::cout << sendingFile << std::endl;
     while(dataSent < fileSize) {
         std::size_t readBytes = fread(buffer, 1, BUFFERSIZE, file);
         send(socket, buffer, readBytes, 0);
         dataSent += readBytes;
     }
 
-    std::cout << "File sent!\n";
+    std::string sentFile { std::format("Sent {} of size {} bytes...", fileName, fileSize) };
+    std::cout << sentFile << std::endl;
     fclose(file);
 }
