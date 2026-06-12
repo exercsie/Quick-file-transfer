@@ -14,14 +14,22 @@ void rFile::receiveFile(int socket, const std::string& path) {
     bytesRec = recv(socket, (char*)&fileSize, sizeof(fileSize), 0);
     if(bytesRec <= 0) {
         throw std::runtime_error("Failed to receive file size!");
-    } 
+    } else {
+        std::cout << "file size: " << fileSize << std::endl;
+    }
+
+    // receive filename length
+    int fileNameLength;
+    bytesRec = recv(socket, &fileNameLength, sizeof(fileNameLength), 0);
 
     // receive fileName
-    bytesRec = recv(socket, buffer, BUFFERSIZE, 0);
+    bytesRec = recv(socket, buffer, fileNameLength, 0);
     std::string fileName(buffer, bytesRec);
 
     if(bytesRec <= 0) {
         throw std::runtime_error("Failed to receive filename!");
+    } else {
+        std::cout << "file name: " << fileName << std::endl;
     }
 
 

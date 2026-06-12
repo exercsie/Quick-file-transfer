@@ -34,8 +34,12 @@ void sFile::sendFile(int socket, const std::string& path) {
         throw std::runtime_error("Failed to send file size!");
     }
 
+    // send filename length
+    int nameLength = fileName.size();
+    bytesSend = send(socket, &nameLength, sizeof(nameLength), 0);
+    
     // send filename
-    bytesSend = send(socket, fileName.c_str(), fileName.length(), 0);
+    bytesSend = send(socket, fileName.c_str(), nameLength, 0);
     if(bytesSend <= 0) {
         throw std::runtime_error("Failed to send filename!");
     }

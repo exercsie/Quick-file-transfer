@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <unistd.h>
+#include <format>
+#include <filesystem>
 
 void menuServer(const int& PORT, std::string& quickPath) {
     Server s(PORT);
@@ -52,6 +54,7 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 break;
             }
 
+            // SERVER WANTS TO SEND
             case TYPE_SEND: {
                 type = TYPE_SEND;
                 bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
@@ -68,6 +71,14 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 std::cout << "Enter path: ";
                 std::getline(std::cin, path);
 
+                std::filesystem::path p(path);
+                if(path.empty() || !std::filesystem::exists(p)) {
+                    std::string error = "error";
+                    bytesSend = send(s.getClientFileDescriptor(), error.c_str(), error.length(), 0);
+                    std::cerr << "Please input a valid path!\n";
+                    break;
+                }
+
                 // send path
                 bytesSend = send(s.getClientFileDescriptor(), path.c_str(), path.length(), 0);
 
@@ -75,6 +86,7 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 break;
             }
 
+            // SERVER WANTS TO RECEIVE
             case TYPE_RECEIVE: {
                 type = TYPE_RECEIVE;
                 bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
@@ -82,6 +94,9 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 // receive path
                 bytesRec = recv(s.getClientFileDescriptor(), buffer, BUFFERSIZE, 0);
                 std::string path(buffer, bytesRec);
+                if(path == "error") {
+                    break;
+                }
 
                 rf.receiveFile(s.getClientFileDescriptor(), path);
                 break;

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <filesystem>
 
 void menuClient(std::string& IP, const int& PORT) {
     Client c(IP, PORT);
@@ -37,19 +38,32 @@ void menuClient(std::string& IP, const int& PORT) {
                 break;
             }
 
+            // SERVER WANTS TO SEND
             case TYPE_SEND: {
                 // receive path
                 bytesRec = recv(c.getClientSocket(), buffer, BUFFERSIZE, 0);
                 std::string path(buffer, bytesRec);
-
+                if(path == "error") {
+                    break;
+                } 
+                
                 rf.receiveFile(c.getClientSocket(), path);
                 break;
             }
 
+            // SERVER WANTS TO RECEIVE
             case TYPE_RECEIVE: {
                 std::string path;
                 std::cout << "Enter path: ";
                 std::getline(std::cin, path);
+
+                std::filesystem::path p(path);
+                if(path.empty() || !std::filesystem::exists(p)) {
+                    std::string error = "error";
+                    bytesSend = send(c.getClientSocket(), error.c_str(), error.length(), 0);
+                    std::cerr << "Please input a valid path!\n";
+                    break;
+                }
 
                 // send path
                 bytesSend = send(c.getClientSocket(), path.c_str(), path.length(), 0);
