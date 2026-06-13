@@ -1,9 +1,13 @@
 #include "SendFile.h"
 #include "../Data/Data.h"
+#include "../Helpers/Helper.h"
+
 #include <iostream>
 #include <cstdint>
 #include <sys/socket.h>
-#include <format>
+#include <print>
+
+Distribute d;
 
 void sFile::sendFile(int socket, const std::string& path) {
     int bytesSend{};
@@ -29,19 +33,31 @@ void sFile::sendFile(int socket, const std::string& path) {
     }
     
     // send file size
-    bytesSend = send(socket, &fileSize, sizeof(fileSize), 0);
+    std::println("\nSending file size!");
+    bytesSend = d.sendAll(socket, reinterpret_cast<char*>(&fileSize), sizeof(fileSize));
     if(bytesSend <= 0) {
         throw std::runtime_error("Failed to send file size!");
+    } else {
+        std::println("Sent file size {}", fileSize);
     }
 
     // send filename length
-    int nameLength = fileName.size();
-    bytesSend = send(socket, &nameLength, sizeof(nameLength), 0);
-    
+    std::println("\nSending filename length!");
+    int fileNameLength = fileName.size();
+    bytesSend = d.sendAll(socket, reinterpret_cast<char*>(&fileNameLength), sizeof(fileNameLength));
+    if(bytesSend <= 0) {
+        throw std::runtime_error("Failed to send filename length!");
+    } else {
+        std::println("Sent filename length of {}", fileNameLength);
+    }
+
     // send filename
-    bytesSend = send(socket, fileName.c_str(), nameLength, 0);
+    std::println("\nSending filename!");
+    bytesSend = d.sendAll(socket, fileName.c_str(), fileNameLength);
     if(bytesSend <= 0) {
         throw std::runtime_error("Failed to send filename!");
+    } else {
+        std::println("Sent filename: {}", fileName);
     }
 
     // build the file's content
@@ -53,15 +69,13 @@ void sFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, cons
     std::size_t dataSent{};
     
     // align file contents in chunks
-    std::string sendingFile { std::format("Sending {} of size {} bytes...", fileName, fileSize) };
-    std::cout << sendingFile << std::endl;
+    std::println("\nSending {} of size {} bytes...", fileName, fileSize);
     while(dataSent < fileSize) {
-        std::size_t readBytes = fread(buffer, 1, BUFFERSIZE, file);
-        send(socket, buffer, readBytes, 0);
+        ssize_t readBytes = fread(buffer, 1, BUFFERSIZE, file);
+        d.sendAll(socket, buffer, readBytes);
         dataSent += readBytes;
     }
 
-    std::string sentFile { std::format("Sent {} of size {} bytes...", fileName, fileSize) };
-    std::cout << sentFile << std::endl;
+    std::println("Sent {} of size {} bytes....\n", fileName, fileSize);
     fclose(file);
 }

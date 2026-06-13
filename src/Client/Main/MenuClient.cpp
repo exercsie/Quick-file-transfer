@@ -3,13 +3,16 @@
 #include "../../Shared/Data/Data.h"
 #include "../../Shared/File-send-and-receive/ReceiveFile.h"
 #include "../../Shared/File-send-and-receive/SendFile.h"
+#include "../../Shared/Helpers/Helper.h"
 
 #include <iostream>
 #include <string>
 #include <unistd.h>
 #include <filesystem>
+#include <print>
 
 void menuClient(std::string& IP, const int& PORT) {
+    Distribute d;
     Client c(IP, PORT);
     rFile rf;
     sFile sf;
@@ -29,7 +32,9 @@ void menuClient(std::string& IP, const int& PORT) {
     int bytesSend{};
     while(true) {
         int type;
-        bytesRec = recv(c.getClientSocket(), (char*)&type, sizeof(type), 0);
+        std::println("Type is: {}", type);
+        bytesRec = d.recvAll(c.getClientSocket(), reinterpret_cast<char*>(&type));
+        std::println("Type is: {}", type);
         switch(type) {
             case TYPE_EXIT: {
                 std::cerr << "Server closed by host!\n";
@@ -41,12 +46,12 @@ void menuClient(std::string& IP, const int& PORT) {
             // SERVER WANTS TO SEND
             case TYPE_SEND: {
                 // receive path
-                bytesRec = recv(c.getClientSocket(), buffer, BUFFERSIZE, 0);
+                bytesRec = d.recvAll(c.getClientSocket(), buffer);
                 std::string path(buffer, bytesRec);
                 if(path == "error") {
                     break;
                 } 
-                
+
                 rf.receiveFile(c.getClientSocket(), path);
                 break;
             }
@@ -60,13 +65,13 @@ void menuClient(std::string& IP, const int& PORT) {
                 std::filesystem::path p(path);
                 if(path.empty() || !std::filesystem::exists(p)) {
                     std::string error = "error";
-                    bytesSend = send(c.getClientSocket(), error.c_str(), error.length(), 0);
+                    bytesSend = d.sendAll(c.getClientSocket(), error.c_str(), error.size());
                     std::cerr << "Please input a valid path!\n";
                     break;
                 }
 
                 // send path
-                bytesSend = send(c.getClientSocket(), path.c_str(), path.length(), 0);
+                bytesSend = d.sendAll(c.getClientSocket(), path.c_str(), path.size());
 
                 sf.sendFile(c.getClientSocket(), path);
                 break;

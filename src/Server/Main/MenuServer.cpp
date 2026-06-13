@@ -3,13 +3,16 @@
 #include "../../Shared/Data/Data.h"
 #include "../../Shared/File-send-and-receive/ReceiveFile.h"
 #include "../../Shared/File-send-and-receive/SendFile.h"
+#include "../../Shared/Helpers/Helper.h"
 
 #include <iostream>
 #include <unistd.h>
 #include <format>
 #include <filesystem>
+#include <print>
 
 void menuServer(const int& PORT, std::string& quickPath) {
+    Distribute d;
     Server s(PORT);
     rFile rf;
     sFile sf;
@@ -21,7 +24,7 @@ void menuServer(const int& PORT, std::string& quickPath) {
     std::cout << "| |_| | |_| | | (__|   <|  _| | | |  __/| || | | (_| | | | \\__ \\  _|  __/ |   \n";
     std::cout << " \\__\\_\\__,_ |_|\\___|_|\\_\\_|   |_|_|\\___||_||_|  \\__,_|_| |_|___ /_| \\___|_|   \n";
     std::cout << std::endl;
-
+    
     char buffer[BUFFERSIZE];
     int bytesSend{}, bytesRec{};
     bool isQuickPath = false;
@@ -42,12 +45,11 @@ void menuServer(const int& PORT, std::string& quickPath) {
 
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
-
         switch(choice) {
             int type;
             case TYPE_EXIT: {
                 type = TYPE_EXIT;
-                bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
+                bytesSend = d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
                 close(s.getClientFileDescriptor());
                 close(s.getServerFileDescriptor());
                 exit(0);
@@ -57,10 +59,11 @@ void menuServer(const int& PORT, std::string& quickPath) {
             // SERVER WANTS TO SEND
             case TYPE_SEND: {
                 type = TYPE_SEND;
-                bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
+                bytesSend = d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
                 
                 if(isQuickPath) {
-                    bytesSend = send(s.getClientFileDescriptor(), quickPath.c_str(), quickPath.length(), 0);
+                    bytesSend = d.sendAll(s.getClientFileDescriptor(), quickPath.c_str(), quickPath.size());
+                    sleep(1);
                     sf.sendFile(s.getClientFileDescriptor(), quickPath);
                     isQuickPath = false;
                     quickPath.clear();
@@ -74,13 +77,13 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 std::filesystem::path p(path);
                 if(path.empty() || !std::filesystem::exists(p)) {
                     std::string error = "error";
-                    bytesSend = send(s.getClientFileDescriptor(), error.c_str(), error.length(), 0);
+                    bytesSend = d.sendAll(s.getClientFileDescriptor(), error.c_str(), error.size());
                     std::cerr << "Please input a valid path!\n";
                     break;
                 }
 
                 // send path
-                bytesSend = send(s.getClientFileDescriptor(), path.c_str(), path.length(), 0);
+                d.sendAll(s.getClientFileDescriptor(), path.c_str(), path.size());
 
                 sf.sendFile(s.getClientFileDescriptor(), path);
                 break;
@@ -89,10 +92,10 @@ void menuServer(const int& PORT, std::string& quickPath) {
             // SERVER WANTS TO RECEIVE
             case TYPE_RECEIVE: {
                 type = TYPE_RECEIVE;
-                bytesSend = send(s.getClientFileDescriptor(), &type, sizeof(type), 0);
+                bytesRec = d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
 
                 // receive path
-                bytesRec = recv(s.getClientFileDescriptor(), buffer, BUFFERSIZE, 0);
+                bytesRec = d.recvAll(s.getClientFileDescriptor(), buffer);
                 std::string path(buffer, bytesRec);
                 if(path == "error") {
                     break;

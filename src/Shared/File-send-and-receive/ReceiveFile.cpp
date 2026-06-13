@@ -1,29 +1,40 @@
 #include "ReceiveFile.h"
 #include "../Data/Data.h"
+#include "../Helpers/Helper.h"
+
 #include <iostream>
 #include <sys/socket.h>
 #include <string>
-#include <format>
+#include <print>
 
 void rFile::receiveFile(int socket, const std::string& path) {
+    Distribute d;
     char buffer[BUFFERSIZE];
     int bytesRec{};
     std::size_t fileSize{};
 
     // receive file size
-    bytesRec = recv(socket, (char*)&fileSize, sizeof(fileSize), 0);
+    std::println("\nReceiving file size!");
+    bytesRec = d.recvAll(socket, reinterpret_cast<char*>(&fileSize));
     if(bytesRec <= 0) {
         throw std::runtime_error("Failed to receive file size!");
     } else {
-        std::cout << "file size: " << fileSize << std::endl;
+        std::println("Received file size {}", fileSize);
     }
 
     // receive filename length
+    std::println("\nReciving filename length!");
     int fileNameLength;
-    bytesRec = recv(socket, &fileNameLength, sizeof(fileNameLength), 0);
+    bytesRec = d.recvAll(socket, reinterpret_cast<char*>(&fileNameLength));
+    if(bytesRec <= 0) {
+        throw std::runtime_error("Failed to received filename length!");
+    } else {
+        std::println("Received filename length: {}", fileNameLength);
+    }
 
     // receive fileName
-    bytesRec = recv(socket, buffer, fileNameLength, 0);
+    std::println("\nReceiving filename!");
+    bytesRec = d.recvAll(socket, buffer);
     std::string fileName(buffer, bytesRec);
 
     if(bytesRec <= 0) {
@@ -42,22 +53,29 @@ void rFile::receiveFile(int socket, const std::string& path) {
 }
 
 void rFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, const std::string& fileName) {
+    Distribute d;
     char buffer[BUFFERSIZE];
     int bytesRec;
     std::size_t dataRec{};
 
-    std::string receivingFile { std::format("Receiving {} of size {} bytes...", fileName, fileSize) };
-    std::cout << receivingFile << std::endl;
+    std::println("\nReceiving {} of size {} bytes...", fileName, fileSize);
     while(dataRec < fileSize) {
         std::size_t readBytes = (fileSize - dataRec > BUFFERSIZE) ? BUFFERSIZE : fileSize - dataRec;
 
-        bytesRec = recv(socket, buffer, readBytes, 0);
+        std::cout << "Waiting for recv..\n";
+        bytesRec = d.recvAll(socket, buffer);
+        std::cout << "After waiting for rec..\n";
         fwrite(buffer, 1, bytesRec, file);
 
         dataRec += bytesRec;
+        std::println("Datarec: {} fileSize: {}", dataRec, fileSize);
+        if(dataRec == fileSize) {
+            break;
+        } else {
+            std::cout << "nope!\n";
+        }
     }
 
-    std::string receivedFile { std::format("Received {} of size {} bytes!", fileName, fileSize) };
-    std::cout << receivedFile << std::endl;
+    std::println("Recevied {} of size {} bytes!", fileName, fileSize);
     fclose(file);
 }

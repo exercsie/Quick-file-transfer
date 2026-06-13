@@ -1,6 +1,6 @@
 #pragma once
 
-#define BUFFERSIZE 4096
+#define BUFFERSIZE 262144
 
 enum MessageType {
     TYPE_EXIT = 0, 
