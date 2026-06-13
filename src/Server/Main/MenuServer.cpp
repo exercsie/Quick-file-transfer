@@ -18,13 +18,15 @@ void menuServer(const int& PORT, std::string& quickPath) {
     sFile sf;
     s.initialiseServerConnection();
 
-    std::cout << "  ___        _      _    _____   _     _____                     __           \n";
-    std::cout << " / _ \\ _   _(_) ___| | _|  ___(_) | __|_   _| __ __ _ _ __  ___ / _| ___ _ __ \n";
-    std::cout << "| | | | | | | |/ __| |/ / |_  | | |/ _ \\| || '__/ _` | '_ \\/ __| |_ / _ \\ '__|\n";
-    std::cout << "| |_| | |_| | | (__|   <|  _| | | |  __/| || | | (_| | | | \\__ \\  _|  __/ |   \n";
-    std::cout << " \\__\\_\\__,_ |_|\\___|_|\\_\\_|   |_|_|\\___||_||_|  \\__,_|_| |_|___ /_| \\___|_|   \n";
-    std::cout << std::endl;
+    std::println("  ___        _      _    _____   _     _____                     __           ");
+    std::println(" / _ \\ _   _(_) ___| | _|  ___(_) | __|_   _| __ __ _ _ __  ___ / _| ___ _ __ ");
+    std::println("| | | | | | | |/ __| |/ / |_  | | |/ _ \\| || '__/ _` | '_ \\/ __| |_ / _ \\ '__|");
+    std::println("| |_| | |_| | | (__|   <|  _| | | |  __/| || | | (_| | | | \\__ \\  _|  __/ |   ");
+    std::println(" \\__\\_\\__,_ |_|\\___|_|\\_\\_|   |_|_|\\___||_||_|  \\__,_|_| |_|___ /_| \\___|_|   ");
+    std::println();
     
+    sleep(1);
+
     char buffer[BUFFERSIZE];
     int bytesSend{}, bytesRec{};
     bool isQuickPath = false;
@@ -34,12 +36,12 @@ void menuServer(const int& PORT, std::string& quickPath) {
             choice = TYPE_SEND;
             isQuickPath = true;
         } else {
-            std::cout << "0 - Exit\n";
-            std::cout << "1 - Send a file\n";
-            std::cout << "2 - Receive a file\n";
+            std::println("0 - Exit");
+            std::println("1 - Send a file");
+            std::println("2 - Receive a file");
             std::cin >> choice;
             if(choice < 0 || choice > 2) {
-                std::cerr << "Invalid choice!\n";
+                std::println(stderr, "Invalid choice!");
                 continue;
             }
 
@@ -71,14 +73,14 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 }
 
                 std::string path;
-                std::cout << "Enter path: ";
+                std::print("Enter path: ");
                 std::getline(std::cin, path);
 
                 std::filesystem::path p(path);
                 if(path.empty() || !std::filesystem::exists(p)) {
-                    std::string error = "error";
+                    std::string error = "pathError";
                     bytesSend = d.sendAll(s.getClientFileDescriptor(), error.c_str(), error.size());
-                    std::cerr << "Please input a valid path!\n";
+                    std::println("Please input a valid path!");
                     break;
                 }
 
@@ -97,7 +99,8 @@ void menuServer(const int& PORT, std::string& quickPath) {
                 // receive path
                 bytesRec = d.recvAll(s.getClientFileDescriptor(), buffer);
                 std::string path(buffer, bytesRec);
-                if(path == "error") {
+                if(path == "pathError") {
+                    std::println(stderr, "Error code: \"{}\". Client failed to input a valid path!", path);
                     break;
                 }
 

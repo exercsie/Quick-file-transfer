@@ -1,9 +1,11 @@
 #include "StartUpServer.h"
+
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <iostream>
 #include <unistd.h>
 #include <cstring>
+#include <print>
 
 void Server::initialiseServerConnection() {
     createServerFileDescriptor();
@@ -25,11 +27,11 @@ Server::~Server() {
 void Server::createServerFileDescriptor() {
     serverFileDescriptor = socket(AF_INET, SOCK_STREAM, 0);
     if(serverFileDescriptor == -1) {
-        std::cerr << "Socket creation failed!\n";
+        std::println(stderr, "Socket creation failed");
         exit(1);
     }
 
-    std::cout << "Socket created!\n";
+    std::println("Socket created!");
 }
 
 void Server::bindSocket() {
@@ -40,21 +42,21 @@ void Server::bindSocket() {
 
     int bindSock = bind(serverFileDescriptor, (sockaddr*)&serverAddress, sizeof(serverAddress));
     if(bindSock == -1) {
-        std::cerr << "Bind failed!\n";
+        std::println("Bind failed");
         exit(1);
     }
 
-    std::cout << "Socket binded!\n";
+    std::println("Socket binded!");
 }
 
 void Server::listenOnServerFileDescriptor() const {
     int listening = listen(serverFileDescriptor, 1);
     if(listening == -1) {
-        std::cerr << "Listening failed!\n";
+        std::println("Listening failed");
         exit(1);
     }
 
-    std::cout << "Listening on PORT: " << port << "...\n";
+    std::println("Listening on PORT: {}", port);
 }
 
 void Server::acceptConnection() {
@@ -62,9 +64,9 @@ void Server::acceptConnection() {
     socklen_t clientLength = sizeof(clientAddress);
     clientFileDescriptor = accept(serverFileDescriptor, (sockaddr*)&clientAddress, &clientLength);
     if(clientFileDescriptor == -1) {
-        std::cerr << "Connection failed!\n";
+        std::println(stderr, "Connection failed!");
         return;
     }
 
-    std::cout << "Connection established on PORT: " << port << std::endl;;
+    std::println("Connection established on PORT: {}", port);
 }

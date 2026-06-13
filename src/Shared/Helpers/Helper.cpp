@@ -20,8 +20,6 @@ ssize_t Distribute::sendAll(int sock, const char* data, std::size_t len) {
         sent += bytesSend;
     }
     
-    std::println("Size is: {}", len);
-        
     // send data
     ssize_t totalSent{};
     while(totalSent < static_cast<ssize_t>(len)) {
@@ -29,10 +27,9 @@ ssize_t Distribute::sendAll(int sock, const char* data, std::size_t len) {
         if(bytesSend <= 0) {
             return -1;
         }
+
         totalSent += bytesSend;
         if(totalSent == len) {
-            std::println("Bytes sent: {}", totalSent);
-            std::cout << "exited sendAll\n";
             return totalSent;
         }
     }
@@ -50,11 +47,9 @@ ssize_t Distribute::recvAll(int sock, char* data) {
         if(bytesRec <= 0) {
             return -1;
         }
+        
         received += bytesRec;  
     }
-    
-    std::println("Size is: {}", len);
-      
     
     // receive data
     ssize_t total{};
@@ -65,10 +60,7 @@ ssize_t Distribute::recvAll(int sock, char* data) {
         }
 
         total += bytesRec;
-        std::println("total {}", total);
         if(total == len) {
-            std::println("Bytes recevied: {}", total);
-            std::cout << "exited recvall\n";
             return total;
         }
     }
