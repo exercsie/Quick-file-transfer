@@ -3,6 +3,10 @@
 #include <string>
 
 int main(int argc, char* argv[]) {
+    if(argc < 2) {
+        throw std::runtime_error("Please use \"./Server [PORT]\"");
+    }
+
     int PORT = std::atoi(argv[1]);
     Server server(PORT);
     

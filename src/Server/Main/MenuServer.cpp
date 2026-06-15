@@ -13,7 +13,6 @@
 
 void menuServer(Server &s, std::string& quickPath) {
     Distribute d;
-    std::cout << "CLient FD = " << s.getClientFileDescriptor() << std::endl;
     rFile rf;
     sFile sf;
     s.initialiseServerConnection();
@@ -118,7 +117,6 @@ void menuServer(Server &s, std::string& quickPath) {
 
 bool createFileOption(Server &s) {
     Distribute d;
-    std::cout << "CLient FD = " << s.getClientFileDescriptor() << std::endl;
     rFile rf;
     sFile sf;
     char createFileChoice;
@@ -138,11 +136,9 @@ bool createFileOption(Server &s) {
     std::string customFilePath;
     if(createFileChoice == 'Y' || createFileChoice == 'y') {
         bool isCreateFile = sf.createFile(createFileChoice, customFilePath);
-        std::cout << "path is" << customFilePath << std::endl;
         if(isCreateFile) {
             d.sendAll(s.getClientFileDescriptor(), customFilePath.c_str(), customFilePath.size());
             sleep(1);
-            std::cout << "LOL!\n";
             sf.sendFile(s.getClientFileDescriptor(), customFilePath);
             return true;
         }
