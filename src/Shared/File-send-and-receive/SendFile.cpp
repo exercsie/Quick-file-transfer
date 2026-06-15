@@ -7,6 +7,7 @@
 #include <sys/socket.h>
 #include <print>
 #include <filesystem>
+#include <fstream>
 
 Distribute d;
 
@@ -66,4 +67,65 @@ void sFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, cons
 
     std::println("Sent {} of size {} bytes\n", fileName, fileSize);
     fclose(file);
+}
+
+bool sFile::createFile(const int& createFileChoice, std::string& path) {
+    std::filesystem::perms::all;
+    std::string fn;
+    bool isEnteredCorrectly = true;
+    while(true) {
+        std::print("Enter file name: ");
+        std::getline(std::cin, fn);
+        std::filesystem::path fileName(fn);
+        if(!(fileName.extension() == ".txt")) {
+            std::println(stderr, "Error, {} must include .txt", fileName.string());
+            continue;
+        }
+
+        if(std::filesystem::exists(fileName)) {
+            char overwriteFile;
+            bool backToWhileLoop = false;
+            std::println("File already exists, do you wish to overwrite {}'s contents [Y/n]?", fileName.string());
+            while(true) {
+                std::cin >> overwriteFile;
+                std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+                if(overwriteFile != 'Y' && overwriteFile != 'y' && overwriteFile != 'N' && overwriteFile != 'n') {
+                    std::println("Invalid input!");
+                    continue;
+                }
+
+                if(overwriteFile == 'Y' || overwriteFile == 'y') {
+                    break;
+                } 
+
+                backToWhileLoop = true;
+                break;
+            }
+            
+            if(backToWhileLoop) {
+                continue;
+            }
+        } 
+
+        return writeContentsToFile(fileName.filename().string(), path);
+    }
+}
+
+bool sFile::writeContentsToFile(const std::filesystem::path& fileName, std::string& path) {
+    std::ofstream file(fileName);
+    std::string fileContents;
+    std::print("Enter the contents to input into the file: ");
+    std::getline(std::cin, fileContents);
+
+    if(file.is_open()) {
+        file << fileContents;
+        std::println("Successfully added \"{}\" into {}", fileContents, fileName.string());
+    } else {
+        std::println(stderr, "File is closed!");
+        return false;
+    }
+
+    path = fileName.string();
+    file.close();
+    return true;
 }

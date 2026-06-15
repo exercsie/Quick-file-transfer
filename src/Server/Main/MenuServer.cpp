@@ -72,9 +72,34 @@ void menuServer(const int& PORT, std::string& quickPath) {
                     continue;
                 }
 
+                char createFileChoice;
+                while(true) {
+                    std::println("Do you want to create a file to send? [Y/n]");
+                    std::cin >> createFileChoice;
+                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    
+                    if(createFileChoice != 'Y' && createFileChoice != 'y' && createFileChoice != 'n' && createFileChoice != 'N') {
+                        std::println(stderr, "Invalid choice!");
+                        continue;
+                    }
+
+                    break;
+                }
+
+                std::string customFilePath;
+                if(createFileChoice == 'Y' || createFileChoice == 'y') {
+                    bool isCreateFile = sf.createFile(createFileChoice, customFilePath);
+                    if(isCreateFile) {
+                        d.sendAll(s.getClientFileDescriptor(), customFilePath.c_str(), customFilePath.size());
+                        continue;
+                    }
+                }
+
                 std::string path;
                 std::print("Enter path: ");
                 std::getline(std::cin, path);
+
+                std::cout << "path: " << path << std::endl;
 
                 std::filesystem::path p(path);
                 if(path.empty() || !std::filesystem::exists(p)) {
