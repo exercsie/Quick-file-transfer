@@ -1,5 +1,8 @@
 #include <iostream>
+
 #include "MenuClient.h"
+#include "../Start-Up/StartUpClient.h"
+
 
 int main(int argc, char* argv[]) {
     if(argc < 3) {
@@ -9,5 +12,7 @@ int main(int argc, char* argv[]) {
     std::string IP = argv[1];
     int PORT = std::atoi(argv[2]);
 
-    menuClient(IP, PORT);   
+    Client client(IP, PORT);
+
+    menuClient(client);   
 }

@@ -11,9 +11,8 @@
 #include <filesystem>
 #include <print>
 
-void menuClient(std::string& IP, const int& PORT) {
+void menuClient(Client& c) {
     Distribute d;
-    Client c(IP, PORT);
     rFile rf;
     sFile sf;
     c.initialiseClientConnection();
@@ -57,6 +56,10 @@ void menuClient(std::string& IP, const int& PORT) {
 
             // SERVER WANTS TO RECEIVE
             case TYPE_RECEIVE: {
+                if(createFileOption(c)) {
+                    continue;
+                }
+
                 std::string path;
                 std::print("Enter path: ");
                 std::getline(std::cin, path);
@@ -77,4 +80,36 @@ void menuClient(std::string& IP, const int& PORT) {
             }
         }
     }
+}
+
+bool createFileOption(Client& c) {
+    Distribute d;
+    rFile rf;
+    sFile sf;
+    char createFileChoice;
+    while(true) {
+        std::println("Do you want to create a file to send? [Y/n]");
+        std::cin >> createFileChoice;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        if(createFileChoice != 'Y' && createFileChoice != 'y' && createFileChoice != 'n' && createFileChoice != 'N') {
+            std::println(stderr, "Invalid choice!");
+            continue;
+        }
+
+        break;
+    }
+
+    std::string customFilePath;
+    if(createFileChoice == 'Y' || createFileChoice == 'y') {
+        bool isCreateFile = sf.createFile(createFileChoice, customFilePath);
+        if(isCreateFile) {
+            d.sendAll(c.getClientSocket(), customFilePath.c_str(), customFilePath.size());
+            sleep(1);
+            sf.sendFile(c.getClientSocket(), customFilePath.c_str());
+            return true;
+        }
+    }
+
+    return false;
 }

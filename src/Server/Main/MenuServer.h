@@ -1,5 +1,8 @@
 #pragma once
 
 #include <string>
+#include "../Start-Up/StartUpServer.h"
 
-void menuServer(const int& PORT, std::string& quickPath);
+
+void menuServer(Server &s, std::string& quickPath);
+bool createFileOption(Server &s);

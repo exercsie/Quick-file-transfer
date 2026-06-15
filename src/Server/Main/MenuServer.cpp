@@ -11,9 +11,9 @@
 #include <filesystem>
 #include <print>
 
-void menuServer(const int& PORT, std::string& quickPath) {
+void menuServer(Server &s, std::string& quickPath) {
     Distribute d;
-    Server s(PORT);
+    std::cout << "CLient FD = " << s.getClientFileDescriptor() << std::endl;
     rFile rf;
     sFile sf;
     s.initialiseServerConnection();
@@ -72,34 +72,13 @@ void menuServer(const int& PORT, std::string& quickPath) {
                     continue;
                 }
 
-                char createFileChoice;
-                while(true) {
-                    std::println("Do you want to create a file to send? [Y/n]");
-                    std::cin >> createFileChoice;
-                    std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
-    
-                    if(createFileChoice != 'Y' && createFileChoice != 'y' && createFileChoice != 'n' && createFileChoice != 'N') {
-                        std::println(stderr, "Invalid choice!");
-                        continue;
-                    }
-
-                    break;
-                }
-
-                std::string customFilePath;
-                if(createFileChoice == 'Y' || createFileChoice == 'y') {
-                    bool isCreateFile = sf.createFile(createFileChoice, customFilePath);
-                    if(isCreateFile) {
-                        d.sendAll(s.getClientFileDescriptor(), customFilePath.c_str(), customFilePath.size());
-                        continue;
-                    }
+                if(createFileOption(s)) {
+                    continue;
                 }
 
                 std::string path;
                 std::print("Enter path: ");
                 std::getline(std::cin, path);
-
-                std::cout << "path: " << path << std::endl;
 
                 std::filesystem::path p(path);
                 if(path.empty() || !std::filesystem::exists(p)) {
@@ -135,4 +114,39 @@ void menuServer(const int& PORT, std::string& quickPath) {
         }
     }
 
+}
+
+bool createFileOption(Server &s) {
+    Distribute d;
+    std::cout << "CLient FD = " << s.getClientFileDescriptor() << std::endl;
+    rFile rf;
+    sFile sf;
+    char createFileChoice;
+    while(true) {
+        std::println("Do you want to create a file to send? [Y/n]");
+        std::cin >> createFileChoice;
+        std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+
+        if(createFileChoice != 'Y' && createFileChoice != 'y' && createFileChoice != 'n' && createFileChoice != 'N') {
+            std::println(stderr, "Invalid choice!");
+            continue;
+        }
+
+        break;
+    }
+
+    std::string customFilePath;
+    if(createFileChoice == 'Y' || createFileChoice == 'y') {
+        bool isCreateFile = sf.createFile(createFileChoice, customFilePath);
+        std::cout << "path is" << customFilePath << std::endl;
+        if(isCreateFile) {
+            d.sendAll(s.getClientFileDescriptor(), customFilePath.c_str(), customFilePath.size());
+            sleep(1);
+            std::cout << "LOL!\n";
+            sf.sendFile(s.getClientFileDescriptor(), customFilePath);
+            return true;
+        }
+    }
+
+    return false;
 }

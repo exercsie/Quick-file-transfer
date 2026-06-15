@@ -14,6 +14,8 @@ Distribute d;
 void sFile::sendFile(int socket, const std::string& path) {
     int bytesSend{};
     
+    std::cout << "PATH IN SENDFILE IS: " << path << std::endl;
+
     // open file in binary
     FILE* file = fopen(path.c_str(), "rb");
     if(!file) {
@@ -23,12 +25,13 @@ void sFile::sendFile(int socket, const std::string& path) {
     // find file size
     fseek(file, 0, SEEK_END);
     std::size_t fileSize = ftell(file);
+    std::cout << "FILE SIZE IS: " << fileSize << std::endl;
     fseek(file, 0, SEEK_SET);
     
     // find filename from path
     std::filesystem::path(path).filename().string();
     std::string fileName = std::filesystem::path(path).filename().string();
-    std::size_t p = path.find_last_of("/\\");
+    std::cout << "FILE NAME IS " << fileName << std::endl;
     
     // send file size
     bytesSend = d.sendAll(socket, reinterpret_cast<char*>(&fileSize), sizeof(fileSize));
@@ -107,7 +110,7 @@ bool sFile::createFile(const int& createFileChoice, std::string& path) {
             }
         } 
 
-        return writeContentsToFile(fileName.filename().string(), path);
+        return writeContentsToFile(fileName.string(), path);
     }
 }
 
@@ -125,7 +128,10 @@ bool sFile::writeContentsToFile(const std::filesystem::path& fileName, std::stri
         return false;
     }
 
-    path = fileName.string();
+    std::string currentPath = std::filesystem::current_path();
+    std::filesystem::path combined = currentPath / fileName;
+    path = combined;
+    std::cout << "PATH IS: " << path << std::endl;
     file.close();
     return true;
 }

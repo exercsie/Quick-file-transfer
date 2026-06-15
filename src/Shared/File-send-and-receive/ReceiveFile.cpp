@@ -15,6 +15,7 @@ void rFile::receiveFile(int socket, const std::string& path) {
 
     // receive file size
     bytesRec = d.recvAll(socket, reinterpret_cast<char*>(&fileSize));
+    std::cout << "RECEIVED FILE SIZE: " << fileSize << std::endl;
     if(bytesRec <= 0) {
         throw std::runtime_error("Failed to receive file size!");
     } 
