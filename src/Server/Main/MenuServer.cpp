@@ -66,31 +66,39 @@ void menuServer(Server &s, std::string& quickPath) {
                     bytesSend = d.sendAll(s.getClientFileDescriptor(), quickPath.c_str(), quickPath.size());
                     sleep(1);
                     sf.sendFile(s.getClientFileDescriptor(), quickPath);
-                    isQuickPath = false;
-                    quickPath.clear();
-                    continue;
+                    type = TYPE_EXIT;
+                    d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
+                    exit(0);
                 }
 
                 if(createFileOption(s)) {
                     continue;
                 }
 
-                std::string path;
-                std::print("Enter path: ");
-                std::getline(std::cin, path);
+                while(true) {
+                    std::string path;
+                    std::print("Enter path: (Press Enter to go back) ");
+                    std::getline(std::cin, path);
+    
+                    std::filesystem::path p(path);
+                    if(path.empty()) {
+                        std::string goBack = "goBack";
+                        d.sendAll(s.getClientFileDescriptor(), goBack.c_str(), goBack.size());
+                        break;
+                    }
 
-                std::filesystem::path p(path);
-                if(path.empty() || !std::filesystem::exists(p)) {
-                    std::string error = "pathError";
-                    bytesSend = d.sendAll(s.getClientFileDescriptor(), error.c_str(), error.size());
-                    std::println("Please input a valid path!");
+                    if(!std::filesystem::exists(p)) {
+                        std::println("Please input a valid path!");
+                        continue;
+                    }
+    
+                    // send path
+                    d.sendAll(s.getClientFileDescriptor(), path.c_str(), path.size());
+    
+                    sf.sendFile(s.getClientFileDescriptor(), path);
                     break;
                 }
 
-                // send path
-                d.sendAll(s.getClientFileDescriptor(), path.c_str(), path.size());
-
-                sf.sendFile(s.getClientFileDescriptor(), path);
                 break;
             }
 
@@ -102,8 +110,7 @@ void menuServer(Server &s, std::string& quickPath) {
                 // receive path
                 bytesRec = d.recvAll(s.getClientFileDescriptor(), buffer);
                 std::string path(buffer, bytesRec);
-                if(path == "pathError") {
-                    std::println(stderr, "Error code: \"{}\". Client failed to input a valid path!", path);
+                if(path == "goBack") {
                     break;
                 }
 

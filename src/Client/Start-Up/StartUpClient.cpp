@@ -25,7 +25,7 @@ void Client::createClientSocket() {
         exit(1);
     }
 
-    std::println("Socket created!");
+    //std::println("Socket created!");
 }
 
 void Client::connectToServer() {

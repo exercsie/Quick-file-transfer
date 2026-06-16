@@ -19,7 +19,7 @@ client Client:
 
 
 server Server:
-	g++ $(SERVER_SRC) -o Server -std=c++23
+	g++ $(SERVER_SRC) -o qft -std=c++23
 
 clean:
 	$(RM) victim server

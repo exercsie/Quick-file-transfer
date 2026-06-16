@@ -31,7 +31,7 @@ void Server::createServerFileDescriptor() {
         exit(1);
     }
 
-    std::println("Socket created!");
+    //std::println("Socket created!");
 }
 
 void Server::bindSocket() {
@@ -46,7 +46,7 @@ void Server::bindSocket() {
         exit(1);
     }
 
-    std::println("Socket binded!");
+    //std::println("Socket binded!");
 }
 
 void Server::listenOnServerFileDescriptor() const {
