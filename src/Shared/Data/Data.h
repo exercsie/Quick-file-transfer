@@ -1,6 +1,6 @@
 #pragma once
 
-#define BUFFERSIZE 262144
+constexpr std::size_t BUFFERSIZE = 262144;
 
 enum MessageType {
     TYPE_EXIT = 0, 

@@ -82,8 +82,8 @@ void menuServer(Server &s, std::string& quickPath) {
     
                     std::filesystem::path p(path);
                     if(path.empty()) {
-                        std::string goBack = "goBack";
-                        d.sendAll(s.getClientFileDescriptor(), goBack.c_str(), goBack.size());
+                        constexpr std::string_view goBack{"goBack"};
+                        d.sendAll(s.getClientFileDescriptor(), goBack.data(), goBack.size());
                         break;
                     }
 
@@ -109,7 +109,7 @@ void menuServer(Server &s, std::string& quickPath) {
 
                 // receive path
                 bytesRec = d.recvAll(s.getClientFileDescriptor(), buffer);
-                std::string path(buffer, bytesRec);
+                const std::string path(buffer, bytesRec);
                 if(path == "goBack") {
                     break;
                 }
@@ -122,7 +122,7 @@ void menuServer(Server &s, std::string& quickPath) {
 
 }
 
-bool createFileOption(Server &s) {
+const bool createFileOption(Server &s) {
     Distribute d;
     rFile rf;
     sFile sf;

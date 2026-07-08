@@ -22,4 +22,4 @@ server Server:
 	g++ $(SERVER_SRC) -o qft -std=c++23
 
 clean:
-	$(RM) victim server
+	$(RM) client server

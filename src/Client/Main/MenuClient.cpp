@@ -44,7 +44,7 @@ void menuClient(Client& c) {
             case TYPE_SEND: {
                 // receive path
                 bytesRec = d.recvAll(c.getClientSocket(), buffer);
-                std::string path(buffer, bytesRec);
+                const std::string path(buffer, bytesRec);
                 if(path == "goBack") {
                     break;
                 }
@@ -65,8 +65,8 @@ void menuClient(Client& c) {
                     std::getline(std::cin, path);
     
                     if(path.empty()) {
-                        std::string goBack = "goBack";
-                        d.sendAll(c.getClientSocket(), goBack.c_str(), goBack.size());
+                        constexpr std::string_view goBack{"goBack"};
+                        d.sendAll(c.getClientSocket(), goBack.data(), goBack.size());
                         break;
                     }
 
@@ -89,7 +89,7 @@ void menuClient(Client& c) {
     }
 }
 
-bool createFileOption(Client& c) {
+const bool createFileOption(Client& c) {
     Distribute d;
     rFile rf;
     sFile sf;

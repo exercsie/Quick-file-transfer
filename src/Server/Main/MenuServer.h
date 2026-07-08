@@ -5,4 +5,4 @@
 
 
 void menuServer(Server &s, std::string& quickPath);
-bool createFileOption(Server &s);
+const bool createFileOption(Server &s);

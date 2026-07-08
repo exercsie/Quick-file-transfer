@@ -6,4 +6,4 @@
 
 
 void menuClient(Client& c);
-bool createFileOption(Client& c);
+const bool createFileOption(Client& c);
