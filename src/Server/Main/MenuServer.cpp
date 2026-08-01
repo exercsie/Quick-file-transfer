@@ -109,6 +109,8 @@ void menuServer(Server &s, std::string& quickPath) {
                         d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
                     }
 
+                    std::cout << std::boolalpha << isDirectory << std::endl;
+
     
                     sf.sendFile(s.getClientFileDescriptor(), path);
                     break;

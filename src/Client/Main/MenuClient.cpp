@@ -55,6 +55,7 @@ void menuClient(Client& c) {
 
                 bool isDirectory;
                 bytesRec = d.recvAll(c.getClientSocket(), reinterpret_cast<char*>(&isDirectory));
+                std::cout << std::boolalpha << isDirectory << std::endl;
 
                 if(isDirectory) {
                     rd.buildDirectory(c.getClientSocket());

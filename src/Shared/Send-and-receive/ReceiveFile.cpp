@@ -1,13 +1,15 @@
 #include "ReceiveFile.h"
 #include "../Data/Data.h"
 #include "../Helpers/Helper.h"
+#include "ReceiveDirectory.h"
 
 #include <iostream>
 #include <sys/socket.h>
 #include <string>
 #include <print>
+#include <filesystem>
 
-void rFile::receiveFile(int socket, const std::string& path) {
+void rFile::receiveFile(int socket, const std::string& path, bool isDirectory) {
     Distribute d;
     char buffer[BUFFERSIZE];
     int bytesRec{};
@@ -33,12 +35,22 @@ void rFile::receiveFile(int socket, const std::string& path) {
         throw std::runtime_error("Failed to receive filename!");
     }
 
+    if(isDirectory) {
+        std::filesystem::path fullPath = std::filesystem::path(path) / fileName;
+        FILE* file = fopen(fullPath.c_str(), "wb");
+        if(!file) {
+            throw std::runtime_error("Failed to create file!");
+        }
+    
+        buildFile(socket, file, fileSize, fileName);
+        return;
+    }
 
     FILE* file = fopen(fileName.c_str(), "wb");
     if(!file) {
         throw std::runtime_error("Failed to create file!");
     }
-
+    
     buildFile(socket, file, fileSize, fileName);
 }
 
