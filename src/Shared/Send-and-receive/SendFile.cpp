@@ -11,7 +11,7 @@
 
 Distribute d;
 
-void sFile::sendFile(int socket, const std::string& path) {
+std::size_t sFile::sendFile(int socket, const std::string& path) {
     int bytesSend{};
     
     // open file in binary
@@ -50,6 +50,7 @@ void sFile::sendFile(int socket, const std::string& path) {
 
     // build the file's content
     buildFile(socket, file, fileSize, fileName);
+    return fileSize;
 }
 
 void sFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, const std::string& fileName) {
@@ -64,7 +65,7 @@ void sFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, cons
         dataSent += readBytes;
     }
 
-    std::println("Sent {} of size {} bytes\n", fileName, fileSize);
+    std::println("Sent {} of size {} bytes!", fileName, fileSize);
     fclose(file);
 }
 

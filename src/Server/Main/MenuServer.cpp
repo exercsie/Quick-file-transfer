@@ -59,6 +59,7 @@ void MenuServer::menuServer(Server &s, std::string& quickPath) {
                 bytesSend = d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
                 close(s.getClientFileDescriptor());
                 close(s.getServerFileDescriptor());
+                std::println("Server closed!");
                 exit(0);
                 break;
             }
@@ -156,6 +157,9 @@ void MenuServer::sendWithQuickPath(Server &s, const std::string& quickPath) {
         sd.buildDirectory(s.getClientFileDescriptor(), p);
         type = MessageType::TYPE_EXIT;
         d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
+        close(s.getClientFileDescriptor());
+        close(s.getServerFileDescriptor());
+        std::println("Server closed!");
         exit(0);
     }
 
@@ -165,6 +169,9 @@ void MenuServer::sendWithQuickPath(Server &s, const std::string& quickPath) {
     sf.sendFile(s.getClientFileDescriptor(), quickPath);
     type = MessageType::TYPE_EXIT;
     d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
+    close(s.getClientFileDescriptor());
+    close(s.getServerFileDescriptor());
+    std::println("Server closed!");
     exit(0);
 }
 

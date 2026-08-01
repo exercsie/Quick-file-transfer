@@ -5,6 +5,7 @@
 #include <iostream>
 #include <filesystem>
 #include <vector>
+#include <print>
 
 void sDirectory::buildDirectory(int socket, std::filesystem::path& p) {
     Distribute d;
@@ -40,8 +41,12 @@ void sDirectory::buildDirectory(int socket, std::filesystem::path& p) {
         throw std::runtime_error("Failed to send amount of files!");
     }
 
+    std::size_t totalBytesSent{};
+
     // send files
     for(const auto& it : files) {
-        sf.sendFile(socket, it.string());
+        totalBytesSent += sf.sendFile(socket, it.string());
     }
+
+    std::println("\nSent {} files of total size {} bytes!", amountOfFiles, totalBytesSent);
 }

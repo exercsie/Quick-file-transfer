@@ -9,7 +9,7 @@
 #include <print>
 #include <filesystem>
 
-void rFile::receiveFile(int socket, const std::string& path, bool isDirectory) {
+std::size_t rFile::receiveFile(int socket, const std::string& path, bool isDirectory) {
     Distribute d;
     char buffer[BUFFERSIZE];
     int bytesRec{};
@@ -43,7 +43,7 @@ void rFile::receiveFile(int socket, const std::string& path, bool isDirectory) {
         }
     
         buildFile(socket, file, fileSize, fileName);
-        return;
+        return fileSize;
     }
 
     FILE* file = fopen(fileName.c_str(), "wb");
@@ -52,6 +52,7 @@ void rFile::receiveFile(int socket, const std::string& path, bool isDirectory) {
     }
     
     buildFile(socket, file, fileSize, fileName);
+    return fileSize;
 }
 
 void rFile::buildFile(int& socket, FILE* file, const std::size_t& fileSize, const std::string& fileName) {

@@ -37,8 +37,8 @@ void MenuClient::menuClient(Client& c) {
         bytesRec = d.recvAll(c.getClientSocket(), reinterpret_cast<char*>(&type));
         switch(type) {
             case MessageType::TYPE_EXIT: {
-                std::println(stderr, "Server closed by host!");
                 close(c.getClientSocket());
+                std::println("Server closed by host!");
                 exit(0);
                 break;
             }

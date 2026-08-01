@@ -6,7 +6,7 @@
 #include <filesystem>
 #include <iostream>
 #include <string>
-
+#include <print>
 
 void rDirectory::buildDirectory(int socket) {
     bool isDirectory = true;
@@ -39,8 +39,11 @@ void rDirectory::buildDirectory(int socket) {
     }
 
     // create directory and receive N amount of files
+    std::size_t totalBytesReceived{};
     std::filesystem::create_directory(directoryName);
     for(std::uint32_t i{}; i < amountOfFiles; ++i) {
-        rf.receiveFile(socket, directoryName, isDirectory);
+        totalBytesReceived += rf.receiveFile(socket, directoryName, isDirectory);
     }
+
+    std::println("\nReceived {} files of total size {} bytes!", amountOfFiles, totalBytesReceived);
 }
