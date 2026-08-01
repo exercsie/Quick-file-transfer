@@ -17,7 +17,7 @@ void sFile::sendFile(int socket, const std::string& path) {
     // open file in binary
     FILE* file = fopen(path.c_str(), "rb");
     if(!file) {
-        throw std::runtime_error("Failed to open file!");
+        throw std::runtime_error("Failed to open or find file!");
     }
 
     // find file size

@@ -50,6 +50,7 @@ void menuServer(Server &s, std::string& quickPath) {
 
             std::cin.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
         }
+
         switch(choice) {
             int type;
             case TYPE_EXIT: {
@@ -69,6 +70,18 @@ void menuServer(Server &s, std::string& quickPath) {
                 if(isQuickPath) {
                     bytesSend = d.sendAll(s.getClientFileDescriptor(), quickPath.c_str(), quickPath.size());
                     sleep(1);
+                    
+                    std::filesystem::path p(quickPath);
+                    if(bool isDirectory = std::filesystem::is_directory(p)) {
+                        d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
+                        sd.buildDirectory(s.getClientFileDescriptor(), p);
+                        type = TYPE_EXIT;
+                        d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
+                        exit(0);
+                    } else {
+                        d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
+                    }
+                    
                     sf.sendFile(s.getClientFileDescriptor(), quickPath);
                     type = TYPE_EXIT;
                     d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&type), sizeof(type));
