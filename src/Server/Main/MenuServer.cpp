@@ -161,8 +161,11 @@ const bool createFileOption(Server &s) {
     if(createFileChoice == 'Y' || createFileChoice == 'y') {
         bool isCreateFile = sf.createFile(createFileChoice, customFilePath);
         if(isCreateFile) {
+            bool isDirectory = false;
             d.sendAll(s.getClientFileDescriptor(), customFilePath.c_str(), customFilePath.size());
             sleep(1);
+            // tell receiver that the created file is not a directory
+            d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
             sf.sendFile(s.getClientFileDescriptor(), customFilePath);
             return true;
         }
