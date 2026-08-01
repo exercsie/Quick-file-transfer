@@ -3,6 +3,8 @@
 #include <string>
 #include "../Start-Up/StartUpServer.h"
 
-
-void menuServer(Server &s, std::string& quickPath);
-const bool createFileOption(Server &s);
+struct MenuServer {
+    void menuServer(Server &s, std::string& quickPath);
+    const bool createFileOption(Server &s);
+    void sendWithQuickPath(Server &s, const std::string& quickPath);
+};

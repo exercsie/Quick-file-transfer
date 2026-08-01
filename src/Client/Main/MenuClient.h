@@ -4,6 +4,7 @@
 
 #include <string>
 
-
-void menuClient(Client& c);
-const bool createFileOption(Client& c);
+struct MenuClient {
+    void menuClient(Client& c);
+    const bool createFileOption(Client& c);
+};

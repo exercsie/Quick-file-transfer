@@ -15,22 +15,32 @@ void rDirectory::buildDirectory(int socket) {
 
     std::size_t bytesRec{};
     char buffer[BUFFERSIZE];
-    std::uint16_t folderNameSize{};
-    std::uint32_t amountOfFiles{};
-
-    // receive folder name size
-    d.recvAll(socket, reinterpret_cast<char*>(&folderNameSize));
-
-    // receive folder name
+    std::uint8_t directoryNameSize{};
+    
+    // receive directory name size
+    bytesRec = d.recvAll(socket, reinterpret_cast<char*>(&directoryNameSize));
+    if(bytesRec <= 0) {
+        throw std::runtime_error("Failed to receive folder name size!");
+    }
+    
+    // receive directory name
     bytesRec = d.recvAll(socket, buffer);
-    std::string folderName(buffer, bytesRec);
-
+    if(bytesRec <= 0) {
+        throw std::runtime_error("Failed to receive folder name!");
+    }
+    
+    std::string directoryName(buffer, directoryNameSize);
+    
     // receive amount of files
-    d.recvAll(socket, reinterpret_cast<char*>(&amountOfFiles));
+    std::uint32_t amountOfFiles{};
+    bytesRec = d.recvAll(socket, reinterpret_cast<char*>(&amountOfFiles));
+    if(bytesRec <= 0) {
+        throw std::runtime_error("Failed to receive amount of files!");
+    }
 
     // create directory and receive N amount of files
-    std::filesystem::create_directory(folderName);
-    for(std::size_t i{}; i < amountOfFiles; ++i) {
-        rf.receiveFile(socket, folderName, isDirectory);
+    std::filesystem::create_directory(directoryName);
+    for(std::uint32_t i{}; i < amountOfFiles; ++i) {
+        rf.receiveFile(socket, directoryName, isDirectory);
     }
 }

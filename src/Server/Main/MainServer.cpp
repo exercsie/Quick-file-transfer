@@ -9,18 +9,19 @@ int main(int argc, char* argv[]) {
 
     int PORT = std::atoi(argv[1]);
     Server server(PORT);
+    MenuServer ms;
     
     std::string quickPath;
     // if one argument is entered quickpath is < 1
     switch(argc) {
         case 2: {
-            menuServer(server, quickPath);
+            ms.menuServer(server, quickPath);
             break;
         }
 
         case 3: {
             quickPath = argv[2];
-            menuServer(server, quickPath);
+            ms.menuServer(server, quickPath);
             break;
         }
 

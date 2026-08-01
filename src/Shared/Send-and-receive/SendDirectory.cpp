@@ -10,8 +10,9 @@ void sDirectory::buildDirectory(int socket, std::filesystem::path& p) {
     Distribute d;
     sFile sf;
 
-    std::string path = p.string();
-    std::uint16_t pathSize = path.size();
+    std::size_t bytesSend{};
+    std::string directoryName = p.string();
+    std::uint8_t directoryNameSize = directoryName.size();
 
     std::vector<std::filesystem::path> files;
     for(const auto& it : std::filesystem::recursive_directory_iterator(p)) {
@@ -19,24 +20,28 @@ void sDirectory::buildDirectory(int socket, std::filesystem::path& p) {
             files.push_back(it.path());
         }
     }
-
-    std::size_t amountOfFiles = files.size();
-
+    
     // send direc name size
-    d.sendAll(socket, reinterpret_cast<char*>(&pathSize), sizeof(pathSize));
-
+    bytesSend = d.sendAll(socket, reinterpret_cast<char*>(&directoryNameSize), sizeof(directoryNameSize));
+    if(bytesSend <= 0) {
+        throw std::runtime_error("Failed to send directory name size!");
+    }
+    
     // send direc name
-    d.sendAll(socket, path.c_str(), pathSize);
-
+    bytesSend = d.sendAll(socket, directoryName.c_str(), directoryNameSize);
+    if(bytesSend <= 0) {
+        throw std::runtime_error("Failed to send directory name!");
+    }
+    
     // send amount of files in direc
-    d.sendAll(socket, reinterpret_cast<char*>(&amountOfFiles), sizeof(amountOfFiles));
+    std::uint32_t amountOfFiles = files.size();
+    bytesSend = d.sendAll(socket, reinterpret_cast<char*>(&amountOfFiles), sizeof(amountOfFiles));
+    if(bytesSend <= 0) {
+        throw std::runtime_error("Failed to send amount of files!");
+    }
 
     // send files
     for(const auto& it : files) {
         sf.sendFile(socket, it.string());
     }
-}
-
-void sDirectory::sendDirectory(std::filesystem::path& p) {
-    
 }

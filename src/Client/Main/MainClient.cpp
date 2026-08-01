@@ -13,6 +13,7 @@ int main(int argc, char* argv[]) {
     int PORT = std::atoi(argv[2]);
 
     Client client(IP, PORT);
+    MenuClient mc;
 
-    menuClient(client);   
+    mc.menuClient(client);   
 }

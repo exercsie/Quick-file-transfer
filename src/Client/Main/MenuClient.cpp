@@ -13,7 +13,7 @@
 #include <filesystem>
 #include <print>
 
-void menuClient(Client& c) {
+void MenuClient::menuClient(Client& c) {
     Distribute d;
     rFile rf;
     sFile sf;
@@ -31,13 +31,12 @@ void menuClient(Client& c) {
     sleep(1);
 
     char buffer[BUFFERSIZE];
-    int bytesRec{};
-    int bytesSend{};
+    std::size_t bytesRec{}, bytesSend{};
     while(true) {
-        int type;
+        MessageType type;
         bytesRec = d.recvAll(c.getClientSocket(), reinterpret_cast<char*>(&type));
         switch(type) {
-            case TYPE_EXIT: {
+            case MessageType::TYPE_EXIT: {
                 std::println(stderr, "Server closed by host!");
                 close(c.getClientSocket());
                 exit(0);
@@ -45,17 +44,17 @@ void menuClient(Client& c) {
             }
 
             // SERVER WANTS TO SEND
-            case TYPE_SEND: {
+            case MessageType::TYPE_SEND: {
                 // receive path
                 bytesRec = d.recvAll(c.getClientSocket(), buffer);
                 const std::string path(buffer, bytesRec);
-                if(path == "goBack") {
+                if(path == ":") {
                     break;
                 }
 
                 bool isDirectory;
                 bytesRec = d.recvAll(c.getClientSocket(), reinterpret_cast<char*>(&isDirectory));
-                std::cout << std::boolalpha << isDirectory << std::endl;
+                //std::cout << std::boolalpha << isDirectory << std::endl;
 
                 if(isDirectory) {
                     rd.buildDirectory(c.getClientSocket());
@@ -67,7 +66,7 @@ void menuClient(Client& c) {
             }
 
             // SERVER WANTS TO RECEIVE
-            case TYPE_RECEIVE: {
+            case MessageType::TYPE_RECEIVE: {
                 if(createFileOption(c)) {
                     continue;
                 }
@@ -78,7 +77,7 @@ void menuClient(Client& c) {
                     std::getline(std::cin, path);
     
                     if(path.empty()) {
-                        constexpr std::string_view goBack{"goBack"};
+                        constexpr std::string_view goBack{":"};
                         d.sendAll(c.getClientSocket(), goBack.data(), goBack.size());
                         break;
                     }
@@ -92,6 +91,15 @@ void menuClient(Client& c) {
                     // send path
                     bytesSend = d.sendAll(c.getClientSocket(), path.c_str(), path.size());
     
+                    if(bool isDirectory = std::filesystem::is_directory(p)) {
+                        // tell receiver that incoming file is directory
+                        d.sendAll(c.getClientSocket(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
+                        sd.buildDirectory(c.getClientSocket(), p);
+                        break;
+                    } else {
+                        d.sendAll(c.getClientSocket(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
+                    }
+
                     sf.sendFile(c.getClientSocket(), path);
                     break;
                 }
@@ -102,7 +110,7 @@ void menuClient(Client& c) {
     }
 }
 
-const bool createFileOption(Client& c) {
+const bool MenuClient::createFileOption(Client& c) {
     Distribute d;
     rFile rf;
     sFile sf;
@@ -126,6 +134,8 @@ const bool createFileOption(Client& c) {
         if(isCreateFile) {
             d.sendAll(c.getClientSocket(), customFilePath.c_str(), customFilePath.size());
             sleep(1);
+            bool isDirectory = false;
+            d.sendAll(c.getClientSocket(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
             sf.sendFile(c.getClientSocket(), customFilePath.c_str());
             return true;
         }
