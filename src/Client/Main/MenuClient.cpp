@@ -1,9 +1,11 @@
 #include "MenuClient.h"
 #include "../Start-Up/StartUpClient.h"
 #include "../../Shared/Data/Data.h"
-#include "../../Shared/File-send-and-receive/ReceiveFile.h"
-#include "../../Shared/File-send-and-receive/SendFile.h"
+#include "../../Shared/Send-and-receive/ReceiveFile.h"
+#include "../../Shared/Send-and-receive/SendFile.h"
 #include "../../Shared/Helpers/Helper.h"
+#include "../../Shared/Send-and-receive/ReceiveDirectory.h"
+#include "../../Shared/Send-and-receive/SendDirectory.h"
 
 #include <iostream>
 #include <string>
@@ -15,6 +17,8 @@ void menuClient(Client& c) {
     Distribute d;
     rFile rf;
     sFile sf;
+    rDirectory rd;
+    sDirectory sd;
     c.initialiseClientConnection();
 
     std::println("  ___        _      _    _____   _     _____                     __           ");
@@ -46,6 +50,14 @@ void menuClient(Client& c) {
                 bytesRec = d.recvAll(c.getClientSocket(), buffer);
                 const std::string path(buffer, bytesRec);
                 if(path == "goBack") {
+                    break;
+                }
+
+                bool isDirectory;
+                bytesRec = d.recvAll(c.getClientSocket(), reinterpret_cast<char*>(&isDirectory));
+
+                if(isDirectory) {
+                    rd.buildDirectory(c.getClientSocket());
                     break;
                 }
 

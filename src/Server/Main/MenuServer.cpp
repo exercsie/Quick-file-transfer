@@ -1,9 +1,11 @@
 #include "MenuServer.h"
 #include "../Start-Up/StartUpServer.h"
 #include "../../Shared/Data/Data.h"
-#include "../../Shared/File-send-and-receive/ReceiveFile.h"
-#include "../../Shared/File-send-and-receive/SendFile.h"
+#include "../../Shared/Send-and-receive/ReceiveFile.h"
+#include "../../Shared/Send-and-receive/SendFile.h"
 #include "../../Shared/Helpers/Helper.h"
+#include "../../Shared/Send-and-receive/ReceiveDirectory.h"
+#include "../../Shared/Send-and-receive/SendDirectory.h"
 
 #include <iostream>
 #include <unistd.h>
@@ -15,6 +17,8 @@ void menuServer(Server &s, std::string& quickPath) {
     Distribute d;
     rFile rf;
     sFile sf;
+    rDirectory rd;
+    sDirectory sd;
     s.initialiseServerConnection();
 
     std::println("  ___        _      _    _____   _     _____                     __           ");
@@ -94,6 +98,17 @@ void menuServer(Server &s, std::string& quickPath) {
     
                     // send path
                     d.sendAll(s.getClientFileDescriptor(), path.c_str(), path.size());
+
+                    bool isDirectory;
+                    if(isDirectory = std::filesystem::is_directory(p)) {
+                        // tell receiver that incoming file is directory
+                        d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
+                        sd.buildDirectory(s.getClientFileDescriptor(), p);
+                        break;
+                    } else {
+                        d.sendAll(s.getClientFileDescriptor(), reinterpret_cast<char*>(&isDirectory), sizeof(isDirectory));
+                    }
+
     
                     sf.sendFile(s.getClientFileDescriptor(), path);
                     break;
