@@ -14,14 +14,19 @@ void sDirectory::buildDirectory(int socket, std::filesystem::path& p) {
     std::size_t bytesSend{};
     std::string directoryName = p.string();
     std::uint8_t directoryNameSize = directoryName.size();
-
     std::vector<std::filesystem::path> files;
+
+    // reserve some arbitrary number of files
+    files.reserve(24);
     for(const auto& it : std::filesystem::recursive_directory_iterator(p)) {
         if(it.is_regular_file()) {
             files.push_back(it.path());
         }
     }
-    
+
+    // shrink empty vector capacity to size
+    files.shrink_to_fit();
+
     // send direc name size
     bytesSend = d.sendAll(socket, reinterpret_cast<char*>(&directoryNameSize), sizeof(directoryNameSize));
     if(bytesSend <= 0) {
@@ -41,9 +46,8 @@ void sDirectory::buildDirectory(int socket, std::filesystem::path& p) {
         throw std::runtime_error("Failed to send amount of files!");
     }
 
-    std::size_t totalBytesSent{};
-
     // send files
+    std::size_t totalBytesSent{};
     for(const auto& it : files) {
         totalBytesSent += sf.sendFile(socket, it.string());
     }

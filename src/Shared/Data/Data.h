@@ -2,7 +2,7 @@
 
 #include <iostream>
 
-constexpr std::size_t BUFFERSIZE = 524288;
+constexpr std::size_t BUFFERSIZE = 1048576;
 
 enum class MessageType : std::uint8_t {
     TYPE_EXIT = 0, 

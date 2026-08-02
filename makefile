@@ -19,11 +19,11 @@ src/Shared/Send-and-receive/ReceiveDirectory.cpp \
 src/Shared/Helpers/Helper.cpp
 
 client Client:
-	g++ $(CLIENT_SRC) -o qftC -std=c++23
+	g++ $(CLIENT_SRC) -o qftC -std=c++23 -O3
 
 
 server Server:
-	g++ $(SERVER_SRC) -o qft -std=c++23
+	g++ $(SERVER_SRC) -o qft -std=c++23 -O3
 
 clean:
 	$(RM) qftC qft
